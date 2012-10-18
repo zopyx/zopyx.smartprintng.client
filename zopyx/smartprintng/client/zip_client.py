@@ -176,18 +176,18 @@ class Proxy2(Proxy):
 
     def ping(self):
         server = xmlrpclib.ServerProxy(self.url + '/ping')
-        return server()
+        return server.ping()
 
     def availableConverters(self):
         server = xmlrpclib.ServerProxy(self.url + '/availableConverters')
-        return server()
+        return server.availableConverters()
 
     def convertZIP2(self, dirname, converter_name='pdf-prince', workdir=None):
         """ XMLRPC client to SmartPrintNG server """
 
         zip_filename = self._makeZipFromDirectory(dirname)
         server = xmlrpclib.ServerProxy(self.url + '/convertZIP')
-        zip_data = server('',
+        zip_data = server.convertZIP('',
                           base64.encodestring(file(zip_filename, 'rb').read()),
                           converter_name)
 
@@ -216,7 +216,7 @@ class Proxy2(Proxy):
 
         zip_filename = self._makeZipFromDirectory(dirname)
         server = xmlrpclib.ServerProxy(self.url + '/convertZIPandRedirect')
-        location = server('',
+        location = server.convertZIPandRedirect('',
                           base64.encodestring(file(zip_filename, 'rb').read()),
                           converter_name,
                           prefix)
