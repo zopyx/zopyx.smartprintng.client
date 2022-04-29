@@ -41,8 +41,8 @@ class Proxy(object):
             file(tmpname, 'w').write('foo')
             os.unlink(tmpname)
         except IOError:
-            raise IOError('Spool directory %s is not writeable' % self.output_directory)
-        LOG.info('Using spool directory %s' % self.output_directory)
+            raise IOError(f'Spool directory {self.output_directory} is not writeable')
+        LOG.info(f'Using spool directory {self.output_directory}')
 
     def _makeZipFromDirectory(self, directory):
         """ Generate a ZIP file from a directory containing all its
@@ -88,7 +88,7 @@ class Proxy(object):
         zip_temp = tempfile.mktemp()
         file(zip_temp, 'wb').write(base64.decodestring(zip_data))
 
-        result = dict()
+        result = {}
         ZF = zipfile.ZipFile(zip_temp, 'r')
         for name in ZF.namelist():
             fullname = os.path.join(workdir or self.output_directory, os.path.basename(name))
@@ -125,14 +125,15 @@ class Proxy(object):
 
         zip_filename = self._makeZipFromDirectory(dirname)
         server = xmlrpclib.ServerProxy('http://%s:%d/convertZIPEmail' % (self.host, self.port))
-        result = server.convertZIPEmail(auth_token,
-                                        base64.encodestring(file(zip_filename, 'rb').read()),
-                                        converter_name,
-                                        sender,
-                                        recipients,
-                                        subject,
-                                        body)
-        return result
+        return server.convertZIPEmail(
+            auth_token,
+            base64.encodestring(file(zip_filename, 'rb').read()),
+            converter_name,
+            sender,
+            recipients,
+            subject,
+            body,
+        )
 
 
 class Proxy2(Proxy):
@@ -155,8 +156,8 @@ class Proxy2(Proxy):
             file(tmpname, 'w').write('foo')
             os.unlink(tmpname)
         except IOError:
-            raise IOError('Spool directory %s is not writeable' % self.output_directory)
-        LOG.info('Using spool directory %s' % self.output_directory)
+            raise IOError(f'Spool directory {self.output_directory} is not writeable')
+        LOG.info(f'Using spool directory {self.output_directory}')
 
     def _makeZipFromDirectory(self, directory):
         """ Generate a ZIP file from a directory containing all its
@@ -175,18 +176,18 @@ class Proxy2(Proxy):
         return zip_filename
 
     def ping(self):
-        server = xmlrpclib.ServerProxy(self.url + '/ping')
+        server = xmlrpclib.ServerProxy(f'{self.url}/ping')
         return server.ping()
 
     def availableConverters(self):
-        server = xmlrpclib.ServerProxy(self.url + '/availableConverters')
+        server = xmlrpclib.ServerProxy(f'{self.url}/availableConverters')
         return server.availableConverters()
 
     def convertZIP2(self, dirname, converter_name='pdf-prince', workdir=None):
         """ XMLRPC client to SmartPrintNG server """
 
         zip_filename = self._makeZipFromDirectory(dirname)
-        server = xmlrpclib.ServerProxy(self.url + '/convertZIP')
+        server = xmlrpclib.ServerProxy(f'{self.url}/convertZIP')
         zip_data = server.convertZIP('',
                           base64.encodestring(file(zip_filename, 'rb').read()),
                           converter_name)
@@ -196,7 +197,7 @@ class Proxy2(Proxy):
         zip_temp = tempfile.mktemp()
         file(zip_temp, 'wb').write(base64.decodestring(zip_data))
 
-        result = dict()
+        result = {}
         ZF = zipfile.ZipFile(zip_temp, 'r')
         for name in ZF.namelist():
             fullname = os.path.join(workdir or self.output_directory, os.path.basename(name))
@@ -215,7 +216,7 @@ class Proxy2(Proxy):
         """ XMLRPC client to SmartPrintNG server """
 
         zip_filename = self._makeZipFromDirectory(dirname)
-        server = xmlrpclib.ServerProxy(self.url + '/convertZIPandRedirect')
+        server = xmlrpclib.ServerProxy(f'{self.url}/convertZIPandRedirect')
         location = server.convertZIPandRedirect('',
                           base64.encodestring(file(zip_filename, 'rb').read()),
                           converter_name,
@@ -228,15 +229,16 @@ class Proxy2(Proxy):
                         sender=None, recipients=None, subject=None, body=None):
 
         zip_filename = self._makeZipFromDirectory(dirname)
-        server = xmlrpclib.ServerProxy(self.url + '/convertZIPEmail')
-        result = server.convertZIPEmail('',
-                                        base64.encodestring(file(zip_filename, 'rb').read()),
-                                        converter_name,
-                                        sender,
-                                        recipients,
-                                        subject,
-                                        body)
-        return result
+        server = xmlrpclib.ServerProxy(f'{self.url}/convertZIPEmail')
+        return server.convertZIPEmail(
+            '',
+            base64.encodestring(file(zip_filename, 'rb').read()),
+            converter_name,
+            sender,
+            recipients,
+            subject,
+            body,
+        )
 
 
 if __name__ == '__main__':
